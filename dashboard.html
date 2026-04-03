@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reported Issues</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #020617, #0f172a, #1e3a8a);
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            padding: 40px 0;
+        }
+
+        .main-box {
+            width: 92%;
+            max-width: 1250px;
+            margin: auto;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.35);
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 28px;
+            color: #dbeafe;
+        }
+
+/* TABLE (RESTORED ORIGINAL STYLE) */
+.table {
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+    color: white;
+    background: transparent !important;
+}
+
+.table thead th {
+    background: rgba(37, 99, 235, 0.25) !important;
+    color: #bfdbfe !important;
+    border: none !important;
+    padding: 18px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.table tbody tr {
+    background: rgba(30, 41, 59, 0.85);
+    transition: 0.3s ease;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+
+.table tbody tr:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(59,130,246,0.2);
+}
+
+.table tbody td {
+    border: none !important;
+    padding: 18px;
+    vertical-align: middle;
+    color: #e2e8f0 !important;
+    background: transparent !important;
+}
+
+.table tbody tr td:first-child {
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+}
+
+.table tbody tr td:last-child {
+    border-top-right-radius: 14px;
+    border-bottom-right-radius: 14px;
+}
+
+        img {
+            width: 90px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* POLICY SECTION */
+        .policy-wrapper {
+            display: flex;
+            gap: 30px;
+            align-items: stretch;
+        }
+
+        .policy-container {
+            flex: 1;
+            height: 260px;
+            overflow: hidden;
+        }
+
+        .policy-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            animation: scrollUp 20s linear infinite;
+        }
+
+        .policy-container:hover .policy-scroll {
+            animation-play-state: paused;
+        }
+
+        .policy-card {
+            background: linear-gradient(135deg, rgba(37,99,235,0.25), rgba(59,130,246,0.1));
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: 0.3s;
+        }
+
+        .policy-card:hover {
+            transform: translateX(6px) scale(1.02);
+        }
+
+        .policy-card h5 {
+            margin: 0;
+            color: #93c5fd;
+        }
+
+        .policy-card p {
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: #cbd5f5;
+        }
+
+        .policy-image {
+            flex: 0.8;
+        }
+
+        .policy-image img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 20px;
+        }
+
+        @keyframes scrollUp {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        .btn-wrap {
+            text-align: center;
+        }
+
+        .btn-back {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            border: none;
+            padding: 12px 26px;
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="main-box">
+    <h2>📍 Reported Civic Issues</h2>
+
+    <table class="table">
+        <thead>
+<tr>
+    <th>Title</th>
+    <th>Category</th>
+    <th>Location</th>
+    <th>Status</th>
+    <th>Image</th>
+    <th>Support</th>
+    <th>Upvote</th>
+    <th>Resolve</th>
+</tr>
+        </thead>
+        <tbody id="issueList"></tbody>
+    </table>
+
+    <!-- GOVT POLICIES -->
+    <div class="policy-section mt-5">
+        <h3 class="text-center mb-4">🏛 Govt Policies & Schemes</h3>
+
+        <div class="policy-wrapper">
+
+            <!-- SCROLL -->
+            <div class="policy-container">
+                <div class="policy-scroll">
+
+                    <!-- ORIGINAL -->
+                    <div class="policy-card"><h5>🧹 Swachh Bharat</h5><p>Cleanliness mission</p></div>
+                    <div class="policy-card"><h5>🏙 Smart Cities</h5><p>Urban development</p></div>
+                    <div class="policy-card"><h5>💧 AMRUT</h5><p>Water & sewerage</p></div>
+                    <div class="policy-card"><h5>🌐 Digital India</h5><p>Digital governance</p></div>
+                    <div class="policy-card"><h5>🌫 Clean Air</h5><p>Reduce pollution</p></div>
+                    <div class="policy-card"><h5>🏠 Housing Scheme</h5><p>Affordable homes</p></div>
+
+                    <!-- DUPLICATE FOR SMOOTH LOOP -->
+                    <div class="policy-card"><h5>🧹 Swachh Bharat</h5><p>Cleanliness mission</p></div>
+                    <div class="policy-card"><h5>🏙 Smart Cities</h5><p>Urban development</p></div>
+                    <div class="policy-card"><h5>💧 AMRUT</h5><p>Water & sewerage</p></div>
+
+                </div>
+            </div>
+
+            <!-- IMAGE -->
+            <div class="policy-image">
+                <img src="image/myphoto.jpeg" alt="My Image">
+            </div>
+
+        </div>
+    </div>
+
+    <div class="btn-wrap">
+        <a href="index.html" class="btn-back">← Back</a>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1e293b);
+    background-size: 400% 400%;
+    animation: bg 10s ease infinite;
+}
+
+@keyframes bg {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.box {
+    width: 450px;
+    padding: 50px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(18px);
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+h2 {
+    margin-bottom: 25px;
+}
+
+.input-group {
+    position: relative;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 10px;
+    border: none;
+    background: #fff;
+    color: #000;
+}
+
+.toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: black;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(45deg, #2bb3b3, #00d4ff);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.message {
+    margin-top: 15px;
+}
+
+.extra {
+    margin-top: 20px;
+}
+
+.extra a {
+    color: #00d4ff;
+    text-decoration: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>Welcome Back 👋</h2>
+
+    <div class="input-group">
+        <input type="email" id="email" placeholder="Email">
+    </div>
+
+    <div class="input-group">
+        <input type="password" id="password" placeholder="Password">
+        <span class="toggle" onclick="togglePassword()">👁</span>
+    </div>
+
+    <button onclick="login()">Login</button>
+
+    <div class="message" id="msg"></div>
+
+    <div class="extra">
+        Don't have an account? <a href="signup.html">Sign Up</a>
+    </div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC1VlG4lXsJ7x0k6t_UdfEXULlIf1QaT3Q",
+  authDomain: "civicissuereportingplatform.firebaseapp.com",
+  projectId: "civicissuereportingplatform",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* 👁 Toggle Password */
+window.togglePassword = function() {
+    const pass = document.getElementById("password");
+    pass.type = pass.type === "password" ? "text" : "password";
+}
+
+/* 🔐 LOGIN FUNCTION */
+window.login = async function() {
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const msg = document.getElementById("msg");
+
+    if (!email || !password) {
+        msg.innerText = "Please fill all fields ❌";
+        return;
+    }
+
+    msg.innerText = "Logging in...";
+
+    try {
+        const q = query(
+            collection(db, "users"),
+            where("email", "==", email),
+            where("password", "==", password)
+        );
+
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+            msg.innerText = "Invalid login ❌";
+            return;
+        }
+
+        const user = snap.docs[0].data();
+
+        /* ✅ IMPORTANT FIX */
+        localStorage.setItem("user", JSON.stringify(user));
+
+        msg.style.color = "#90ee90";
+        msg.innerText = "Login success ✅";
+
+        setTimeout(() => {
+            window.location.href = "user.html";
+        }, 1000);
+
+    } catch (err) {
+        msg.innerText = "Error: " + err.message;
+    }
+}
+</script>
+
+</body>
+</html>

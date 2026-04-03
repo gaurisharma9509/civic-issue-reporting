@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    .scroll-box {
+    height: 280px;
+    overflow: hidden;
+    position: relative;
+}
+
+.scroll-content {
+    display: inline-block;
+    animation: scrollUp 15s linear infinite;
+}
+
+@keyframes scrollUp {
+    0% {
+        transform: translateY(100%);
+    }
+    100% {
+        transform: translateY(-100%);
+    }
+}
+body {
+    background: linear-gradient(135deg, #0b1120, #111827, #1e293b);
+    min-height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+
+    border-left: 60px solid black;   /* 👈 LEFT BORDER */
+    border-right: 60px solid black;  /* 👈 RIGHT BORDER */
+}
+
+.admin-card {
+    background: rgba(17, 24, 39, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.table { color: white; }
+.table thead { background: #1e3a8a; }
+
+.btn-danger { background: #dc2626; }
+.btn-primary { background: #2563eb; }
+
+</style>
+</head>
+
+<body>
+
+
+
+<h2 class="text-center mb-4">Admin Panel - Manage Civic Issues</h2>
+<!-- 📊 GRAPH + GUIDELINES SIDE BY SIDE -->
+<div class="row mt-5">
+
+    <!-- 📊 LEFT SIDE: GRAPH -->
+    <div class="col-md-5">
+        <h4 class="mb-3">Issue Status Overview</h4>
+        <div style="width:100%; height:350px;">
+            <canvas id="issueChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 📋 RIGHT SIDE: GUIDELINES -->
+    <div class="col-md-7">
+    <div class="alert" style="background:#1e293b; color:white; border:none; height:350px; overflow:hidden;">
+
+        <h5>Admin Guidelines</h5>
+
+        <div class="scroll-box">
+            <ul class="mb-0 scroll-content">
+
+                <li><b>Issue Review Timeline:</b> Review within 24 hours</li>
+                <li><b>Resolution Deadline:</b> Resolve within 3 days</li>
+                <li><b>Emergency:</b> Resolve within 12 hours</li>
+                <li><b>Status Flow:</b> Pending → In Progress → Resolved</li>
+                <li><b>Verify Evidence:</b> Check images before action</li>
+                <li><b>Priority:</b> High upvotes first</li>
+                <li><b>Duplicates:</b> Merge similar issues</li>
+                <li><b>Monitor:</b> Use Firebase console</li>
+                <li><b>Daily Review:</b> Check dashboard daily</li>
+                <li><b>Escalation:</b> After 72 hours</li>
+                <li><b>Hotspots:</b> Identify repeated areas</li>
+                <li><b>Communication:</b> Keep users updated</li>
+
+            </ul>
+        </div>
+
+    </div>
+</div>
+    </div>
+
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered align-middle">
+
+<thead>
+<tr>
+<th>Title</th>
+<th>Category</th>
+<th>Location</th>
+<th>Status</th>
+<th>Update Status</th>
+</tr>
+</thead>
+
+<tbody id="adminIssueList"></tbody>
+
+</table>
+</div>
+
+<!-- ✅ CHART AT BOTTOM LEFT -->
+
+</div>
+
+<a href="index.html" class="btn btn-primary mt-3">Back to Home</a>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module" src="admin.js"></script>
+
+<script>
+let chart;
+
+// GLOBAL
+window.updateChart = function () {
+
+    let active = 0;
+    let closed = 0;
+
+    const rows = document.querySelectorAll("#adminIssueList tr");
+
+    rows.forEach(row => {
+        const status = row.children[3]?.innerText.toLowerCase();
+
+        if (status.includes("pending") || status.includes("progress")) active++;
+        else if (status.includes("resolved")) closed++;
+    });
+
+    const data = {
+        labels: ["Active", "Closed"],
+        datasets: [{
+            data: [active, closed],
+            backgroundColor: ["#22c55e", "#ef4444"]
+        }]
+    };
+
+    const ctx = document.getElementById("issueChart").getContext("2d");
+
+    if (chart) {
+        chart.data = data;
+        chart.update();
+    } else {
+        chart = new Chart(ctx, {
+            type: "pie",
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: { color: "#fff" }
+                    }
+                }
+            }
+        });
+    }
+};
+
+// AUTO UPDATE
+const observer = new MutationObserver(updateChart);
+observer.observe(document.getElementById("adminIssueList"), {
+    childList: true,
+    subtree: true
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact UI</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: #0d1117;
+    color: #fff;
+}
+
+/* HERO */
+.hero {
+    background: linear-gradient(135deg, #282f39, #111827);
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 50px;
+}
+
+.hero p {
+    color: #f2eded;
+}
+
+/* MAIN */
+.main {
+    width: 90%;
+    max-width: 1100px;
+    margin: -50px auto 50px;
+}
+
+/* CARD */
+.card {
+    background: #161b22;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+/* FORM */
+.form-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+    border: 1px solid #2f3540;
+    background: #0d1117;
+    color: #fff;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #ffffff;
+}
+
+textarea {
+    border-radius: 15px;
+    height: 120px;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 10px #3b82f6;
+}
+
+/* ERROR */
+.error {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+/* BUTTON */
+button {
+    background: #3b82f6;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    color: white;
+    cursor: pointer;
+}
+
+/* INFO */
+.info-boxes {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.info {
+    flex: 1;
+    background: #161b22;
+    padding: 20px;
+    border-radius: 15px;
+    min-width: 250px;
+}
+
+/* MAP */
+.map {
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+iframe {
+    width: 100%;
+    height: 300px;
+    border: none;
+}
+
+/* FOOTER */
+.footer {
+    background: #161b22;
+    padding: 30px;
+    margin-top: 50px;
+    text-align: center;
+    color: #aaa;
+}
+
+@media(max-width: 768px) {
+    .form-group {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+    <h1>Contact Us</h1>
+    <p>We’d love to hear from you</p>
+</div>
+
+<div class="main">
+
+    <div class="card">
+        <form id="contactForm">
+
+            <div class="form-group">
+                <div style="width:100%">
+                    <input type="email" id="email" placeholder="Email" required>
+                    <div id="emailError" class="error"></div>
+                </div>
+
+                <div style="width:100%">
+                    <input type="text" id="phone" placeholder="Phone" required maxlength="10">
+                    <div id="phoneError" class="error"></div>
+                </div>
+            </div>
+
+            <input type="text" id="name" placeholder="Name" required style="margin-bottom:5px;">
+            <div id="nameError" class="error"></div>
+
+            <textarea id="message" placeholder="Message" required></textarea>
+            <div id="messageError" class="error"></div>
+
+            <br>
+            <button type="submit">Submit</button>
+
+        </form>
+    </div>
+
+    <div class="info-boxes">
+        <div class="info">📞 (+91) 6280545809</div>
+        <div class="info">📧 gaurisharma9509@gmail.com</div>
+        <div class="info">📍 Panchkula, Haryana</div>
+    </div>
+
+    <div class="map">
+        <iframe src="https://maps.google.com/maps?q=Panchkula%20Haryana&z=13&output=embed"></iframe>
+    </div>
+
+</div>
+
+<div class="footer">
+    © 2026 Zapworks | All Rights Reserved
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC1VlG4lXsJ7x0k6t_UdfEXULlIf1QaT3Q",
+  authDomain: "civicissuereportingplatform.firebaseapp.com",
+  projectId: "civicissuereportingplatform",
+  storageBucket: "civicissuereportingplatform.firebasestorage.app",
+  messagingSenderId: "764704688619",
+  appId: "1:764704688619:web:fe44c0180535d9eb3f31ae"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const form = document.getElementById("contactForm");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Clear errors
+    document.querySelectorAll(".error").forEach(el => el.textContent = "");
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    let valid = true;
+
+    // Email validation
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)$/;
+    if (!emailPattern.test(email)) {
+        document.getElementById("emailError").textContent = "Only Gmail or Yahoo allowed";
+        valid = false;
+    }
+
+    // Phone validation
+    const phonePattern = /^[0-9]{10}$/;
+    if (!phonePattern.test(phone)) {
+        document.getElementById("phoneError").textContent = "Enter 10 digit number";
+        valid = false;
+    }
+
+    // Name
+    if (name.length < 2) {
+        document.getElementById("nameError").textContent = "Enter valid name";
+        valid = false;
+    }
+
+    // Message
+    if (message.length < 5) {
+        document.getElementById("messageError").textContent = "Message too short";
+        valid = false;
+    }
+
+    if (!valid) return;
+
+    try {
+        await addDoc(collection(db, "contacts"), {
+            name,
+            email,
+            phone,
+            message,
+            createdAt: serverTimestamp()
+        });
+
+        alert("Message sent successfully ✅");
+        form.reset();
+
+    } catch (error) {
+        console.error(error);
+        alert("Error sending message ❌");
+    }
+});
+</script>
+
+</body>
+</html>

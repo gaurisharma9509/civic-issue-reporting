@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    display: flex;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+}
+
+.profile {
+    text-align: center;
+    padding: 20px;
+}
+
+.profile img {
+    width: 65px;
+    border-radius: 50%;
+    border: 2px solid #2bb3b3;
+}
+
+.profile p {
+    margin-top: 10px;
+}
+
+/* Menu */
+.menu {
+    list-style: none;
+}
+
+.menu li {
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.menu a {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: white;
+}
+
+.menu a:hover {
+    background: rgba(43,179,179,0.2);
+}
+
+.active a {
+    background: #2bb3b3;
+    color: black;
+}
+
+/* Logout */
+.logout {
+    margin: 20px;
+    padding: 10px;
+    background: #ff6b6b;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+/* Cards */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.card img {
+    width: 45px;
+    filter: brightness(0) invert(1);
+}
+
+.value {
+    font-size: 28px;
+    color: #2bb3b3;
+}
+
+/* Circle */
+.circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(#2bb3b3 0%, #444 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+/* Charts */
+.charts {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media(max-width:768px){
+    .sidebar{display:none;}
+    .charts{grid-template-columns:1fr;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="profile">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+        <p id="userEmail">User</p>
+    </div>
+
+    <ul class="menu">
+        <li class="active"><a href="user.html">Dashboard</a></li>
+        <li><a href="index.html">Report Issue</a></li>
+        <li><a href="dashboard.html">Reported Issues</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+    </ul>
+
+    <div class="logout" onclick="logout()">Logout</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+<div class="cards">
+
+<div class="card">
+<div class="circle" id="circle">0%</div>
+<p>Resolved %</p>
+</div>
+
+<div class="card"><p>Total</p><div class="value" id="totalIssues">0</div></div>
+<div class="card"><p>Areas</p><div class="value" id="areas">0</div></div>
+<div class="card"><p>Pending</p><div class="value" id="pending">0</div></div>
+<div class="card"><p>Resolved</p><div class="value" id="resolved">0</div></div>
+<div class="card"><p>Progress</p><div class="value" id="progress">0</div></div>
+<div class="card"><p>Upvotes</p><div class="value" id="upvotes">0</div></div>
+
+</div>
+
+<div class="charts">
+<div class="card"><canvas id="barChart"></canvas></div>
+<div class="card"><canvas id="pieChart"></canvas></div>
+</div>
+
+</div>
+
+<!-- ONLY SCRIPT REPLACED, REST SAME -->
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC1VlG4lXsJ7x0k6t_UdfEXULlIf1QaT3Q",
+  authDomain: "civicissuereportingplatform.firebaseapp.com",
+  projectId: "civicissuereportingplatform",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 🔐 CHECK LOGIN
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+    window.location.href = "login.html";
+}
+
+document.getElementById("userEmail").innerText = user.email;
+
+// 🚪 LOGOUT
+window.logout = function(){
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+}
+
+// 📊 DASHBOARD
+async function loadDashboard() {
+
+    const querySnapshot = await getDocs(collection(db, "issues"));
+
+    let total=0,pending=0,resolved=0,progress=0,upvotes=0;
+    let areasSet=new Set();
+
+    querySnapshot.forEach(doc=>{
+        const data=doc.data();
+
+        if(data.userId !== user.email) return;
+
+        total++;
+
+        const status=data.status?.toLowerCase()||"";
+
+        if(status==="pending") pending++;
+        else if(status==="resolved") resolved++;
+        else if(status==="in progress") progress++;
+
+        if(data.upvotes) upvotes+=data.upvotes;
+        if(data.location) areasSet.add(data.location);
+    });
+
+    let percent = total ? Math.round((resolved/total)*100) : 0;
+
+    document.getElementById("circle").innerText = percent+"%";
+    document.getElementById("circle").style.background =
+        `conic-gradient(#2bb3b3 ${percent}%, #444 ${percent}%)`;
+
+    document.getElementById("totalIssues").innerText=total;
+    document.getElementById("pending").innerText=pending;
+    document.getElementById("resolved").innerText=resolved;
+    document.getElementById("progress").innerText=progress;
+    document.getElementById("upvotes").innerText=upvotes;
+    document.getElementById("areas").innerText=areasSet.size;
+
+    new Chart(document.getElementById("barChart"), {
+        type:'bar',
+        data:{
+            labels:["Pending","Resolved","Progress"],
+            datasets:[{data:[pending,resolved,progress]}]
+        }
+    });
+
+    new Chart(document.getElementById("pieChart"), {
+        type:'doughnut',
+        data:{
+            labels:["Pending","Resolved","Progress"],
+            datasets:[{data:[pending,resolved,progress]}]
+        }
+    });
+}
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
