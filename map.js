@@ -1,12 +1,10 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
 import {
     getFirestore,
     collection,
     getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 
 // Firebase Config
 const firebaseConfig = {
@@ -18,36 +16,30 @@ const firebaseConfig = {
     appId: "1:764704688619:web:fe44c0180535d9eb3f31ae"
 };
 
-
 // Init Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-
 // Store current user location globally
 let currentUserLat = null;
 let currentUserLng = null;
-
 
 // Create map
 const map = L.map("map", {
     zoomControl: false
 }).setView([30.7046, 76.7179], 13);
 
-
 // Zoom control
 L.control.zoom({ position: "topright" }).addTo(map);
 
-
-// Dark theme tiles
+// ✅ FIXED TILE LAYER (NO AUTH ERROR)
 L.tileLayer(
-    "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
-        maxZoom: 20,
+        maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors"
     }
 ).addTo(map);
-
 
 // Detect current location automatically
 map.locate({
@@ -56,7 +48,6 @@ map.locate({
     enableHighAccuracy: true,
     timeout: 10000
 });
-
 
 // When location found
 map.on("locationfound", function (e) {
@@ -69,14 +60,14 @@ map.on("locationfound", function (e) {
 
     console.log("Current location:", lat, lng);
 
-    // ✅ dispatch custom event
+    // dispatch custom event
     window.dispatchEvent(
         new CustomEvent("locationReady", {
             detail: { lat, lng }
         })
     );
 
-    // marker
+    // current location marker
     L.marker([lat, lng])
         .addTo(map)
         .bindPopup(
@@ -84,7 +75,7 @@ map.on("locationfound", function (e) {
         )
         .openPopup();
 
-    // circle
+    // accuracy circle
     L.circle([lat, lng], {
         radius: accuracy,
         color: "#007bff",
@@ -96,7 +87,6 @@ map.on("locationfound", function (e) {
 map.on("locationerror", function () {
     alert("⚠️ Could not fetch current location. Please enable location access.");
 });
-
 
 // Load reported issues from Firebase
 async function loadIssues() {
@@ -144,18 +134,15 @@ async function loadIssues() {
     }
 }
 
-
-// Load all issue markers
+// Load markers
 loadIssues();
-
 
 // Optional click debug
 map.on("click", function (e) {
     console.log("Clicked at:", e.latlng);
 });
 
-
-// Export current location for other files
+// Export current location
 window.getCurrentCoordinates = function () {
     return {
         lat: currentUserLat,
